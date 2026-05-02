@@ -12,13 +12,9 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
-    // Map some common Supabase error messages to friendlier text
-    const raw = String(error?.message ?? error ?? "An error occurred");
-    let message = raw;
-    if (/invalid|expired|access denied|session expired/i.test(raw)) {
-      message = "Access denied or expired link — request a new sign-in link.";
-    }
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(message)}`);
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent(error.message)}`,
+    );
   }
 
   return NextResponse.redirect(`${origin}/login?error=Missing+code`);
