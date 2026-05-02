@@ -22,7 +22,17 @@ export async function sendMagicLink(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    const rawMessage = String(error?.message ?? error ?? "An error occurred");
+    // Detect rate-limit / too-many-requests and show a friendly message
+    if (error?.status === 429 || /rate limit|too many requests/i.test(rawMessage)) {
+      const rateMsg = encodeURIComponent(
+        "Too many requests — please wait a few minutes and check your inbox."
+      );
+      redirect(`/login?error=${rateMsg}`);
+    }
+
+    redirect(`/login?error=${encodeURIComponent(rawMessage)}`);
   }
-  redirect("/login?sent=1");
+  const infoMessage = encodeURIComponent("Check your inbox for the magic link.");
+  redirect(`/login?sent=1&message=${infoMessage}`);
 }
